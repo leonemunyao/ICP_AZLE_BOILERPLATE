@@ -79,4 +79,53 @@ export function addMessage(payload: MessagePayload): Result<Message, string> {
  * $Update annotation is utilize to signify to Azle that this function is an update function
  */
 
-// De
+// Developing the Update Message function
+/**
+ * The next step is to create a function that allows us to update an existing message. 
+ */
+
+$update;
+export function updateMessage(id: string, payload: MessagePayload): Result<Message, string>{
+    return match(messageStorage.get(id), {
+        Some: (message) => {
+            const updatedMessage: Message = {...message, ...payload, updatedAt: Opt.Some(ic.time())};
+            messageStorage.insert(message.id, updatedMessage);
+            return Result.Ok<Message, string>(updatedMessage);
+        },
+        None: () =>  Result.Err<Message, string>(`couldn't update the message with id=${id}. message not found`)
+    });
+}
+
+// Creating a function to delete a Message
+
+$update;
+export function deleteMessage(id: string): Result<Message, string> {
+    return match(messageStorage.remove(id), {
+        Some: (deletedMessage) => Result.Ok<Message, string>(deletedMessage),
+        None: () => Result.Err<Message, string>(`couldn't delete the message with id=${id}. message not found`)
+    })
+}
+
+/**
+ * In the deletion code. We are using messageStorage.remove(id) method to remove a message by its ID from our storage. If the operaion
+ * is successfull, it return deletd message
+ */
+
+// Configuring the UUID Package
+
+globalThis.crypto = {
+    // @ts-ignore
+    getRandomValues: () => {
+        let array = new Uint8Array(32)
+
+        for (let i = 0; i < array.length; i++) {
+            array[i] = Math.floor(Math.random() * 256)
+        }
+
+        return array
+    }
+};
+
+/**
+ * In this  code we are extending globalThis object by adding a crypto property to it.
+ */
